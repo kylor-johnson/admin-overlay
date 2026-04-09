@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eCat Data Model &mdash; Understanding Your Data Files</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   SUPERCAT DESIGN SYSTEM v1
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --sc-font-sans:'Geist',system-ui,-apple-system,sans-serif;
+  --sc-font-mono:'Geist Mono','SF Mono','Courier New',monospace;
+  --sc-text-xs:0.75rem;--sc-text-sm:0.875rem;--sc-text-base:1rem;
+  --sc-text-md:1.125rem;--sc-text-lg:1.375rem;--sc-text-xl:1.75rem;
+  --sc-text-2xl:2.375rem;--sc-text-3xl:3.25rem;
+  --sc-space-1:4px;--sc-space-2:8px;--sc-space-3:12px;--sc-space-4:16px;
+  --sc-space-5:20px;--sc-space-6:24px;--sc-space-8:32px;--sc-space-10:40px;
+  --sc-space-12:48px;--sc-space-16:64px;--sc-space-20:80px;
+  --sc-radius-sm:4px;--sc-radius:6px;--sc-radius-md:8px;--sc-radius-lg:10px;
+  --sc-radius-xl:14px;--sc-radius-2xl:18px;--sc-radius-full:999px;
+  --sc-shadow-xs:0 1px 2px rgba(0,0,0,0.04);
+  --sc-shadow-sm:0 1px 2px rgba(0,0,0,0.03);
+  --sc-shadow-lg:0 8px 24px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.04);
+  --sc-ease:cubic-bezier(0.25,0.1,0.25,1);--sc-duration:0.2s;--sc-duration-slow:0.35s;
+  --sc-max-w:1320px;--sc-gutter:48px;
+}
+[data-theme="light"] {
+  --sc-bg:#EDE8E1;--sc-bg-raised:#F6F3EF;--sc-bg-surface:#FFF;--sc-bg-sunken:#E4DFD8;
+  --sc-text-primary:#1A1614;--sc-text-secondary:#3D3532;--sc-text-tertiary:#7A7370;--sc-text-muted:#A8A5A2;--sc-text-inverted:#FFF;
+  --sc-accent:#7A1218;--sc-accent-hover:#5C1215;--sc-accent-light:#F2E8E8;--sc-accent-border:#D4A9A8;--sc-accent-text:#7A1218;
+  --sc-gold:#B97727;--sc-gold-light:#D4A85A;--sc-gold-bg:#F5EDD8;
+  --sc-clay:#D6B8A0;--sc-clay-light:#EBD9CA;--sc-clay-bg:#F5EDE5;--sc-clay-dark:#B89A7E;
+  --sc-border:#D8D4CF;--sc-border-light:#E8E5E0;--sc-border-strong:#B5B0AB;
+  --sc-success:#2E6B2E;--sc-success-bg:#EBF5EB;--sc-warning:#7A5828;--sc-warning-bg:#F9F2E5;--sc-error:#7A1218;--sc-error-bg:#FAF2F2;
+  --sc-card-bg:var(--sc-bg-surface);--sc-card-border:var(--sc-border);--sc-card-shadow:var(--sc-shadow-sm);
+  --sc-input-bg:var(--sc-bg-surface);--sc-table-header:var(--sc-bg-raised);--sc-table-stripe:var(--sc-bg-raised);
+  --sc-badge-bg:var(--sc-bg-raised);--sc-code-bg:var(--sc-bg-raised);
+}
+[data-theme="dark"] {
+  --sc-bg:#131110;--sc-bg-raised:#1A1816;--sc-bg-surface:#22201E;--sc-bg-sunken:#0C0B0A;
+  --sc-text-primary:#EDE4D6;--sc-text-secondary:#D4C8BC;--sc-text-tertiary:#A09488;--sc-text-muted:#5C5650;--sc-text-inverted:#EDE4D6;
+  --sc-accent:#5C1D2A;--sc-accent-hover:#6E2835;--sc-accent-light:#1E0C10;--sc-accent-border:#7A3540;--sc-accent-text:#D4A9A8;
+  --sc-gold:#D4A85A;--sc-gold-bg:#2A2010;
+  --sc-clay:#D6B8A0;--sc-clay-light:#3D3028;--sc-clay-bg:#2A2318;--sc-clay-dark:#B89A7E;
+  --sc-border:#2E2A25;--sc-border-light:#252220;--sc-border-strong:#45403A;
+  --sc-success:#6B9E6B;--sc-success-bg:#0E1A0E;--sc-warning:#D4A55A;--sc-warning-bg:#1E1808;--sc-error:#C85C55;--sc-error-bg:#1E0808;
+  --sc-card-bg:var(--sc-bg-raised);--sc-card-border:var(--sc-border);--sc-card-shadow:0 2px 8px rgba(0,0,0,0.35);
+  --sc-input-bg:var(--sc-bg-surface);--sc-table-header:var(--sc-bg-surface);--sc-table-stripe:rgba(255,255,255,0.02);
+  --sc-badge-bg:var(--sc-bg-surface);--sc-code-bg:var(--sc-bg-sunken);
+  --sc-shadow-sm:0 1px 2px rgba(0,0,0,0.15);
+  --sc-shadow-lg:0 8px 24px rgba(0,0,0,0.4),0 2px 6px rgba(0,0,0,0.2);
+  --sc-shadow-xs:0 1px 2px rgba(0,0,0,0.25);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{overflow-x:hidden;}
+body{font-family:var(--sc-font-sans);overflow-x:hidden;font-size:var(--sc-text-base);font-weight:400;line-height:1.6;color:var(--sc-text-primary);background:var(--sc-bg);-webkit-font-smoothing:antialiased;transition:background var(--sc-duration-slow) var(--sc-ease),color var(--sc-duration-slow) var(--sc-ease);}
+
+/* ═══ TYPOGRAPHY ═══ */
+.sc-display{font-size:var(--sc-text-3xl);font-weight:800;line-height:0.95;letter-spacing:-0.04em;color:var(--sc-text-primary);}
+.sc-h1{font-size:var(--sc-text-2xl);font-weight:700;line-height:1.05;letter-spacing:-0.035em;color:var(--sc-text-primary);}
+.sc-h2{font-size:var(--sc-text-xl);font-weight:700;line-height:1.1;letter-spacing:-0.03em;color:var(--sc-text-primary);}
+.sc-h3{font-size:var(--sc-text-lg);font-weight:600;line-height:1.15;letter-spacing:-0.025em;color:var(--sc-text-primary);}
+.sc-h4{font-size:var(--sc-text-md);font-weight:600;line-height:1.2;letter-spacing:-0.02em;color:var(--sc-text-primary);}
+.sc-body{font-size:var(--sc-text-base);font-weight:400;line-height:1.6;color:var(--sc-text-secondary);}
+.sc-body-sm{font-size:var(--sc-text-sm);font-weight:400;line-height:1.55;color:var(--sc-text-tertiary);}
+.sc-label{font-family:var(--sc-font-mono);font-size:var(--sc-text-xs);font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--sc-text-tertiary);}
+.sc-mono{font-family:var(--sc-font-mono);font-size:var(--sc-text-sm);font-weight:500;color:var(--sc-text-secondary);}
+
+/* ═══ PROGRESS BAR ═══ */
+#sc-progress-bar{position:fixed;top:0;left:0;right:0;height:3px;z-index:200;background:transparent;pointer-events:none;}
+#sc-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--sc-accent),var(--sc-gold));transition:width 0.1s linear;border-radius:0 2px 2px 0;}
+
+/* ═══ BUTTONS ═══ */
+.sc-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--sc-font-sans);font-size:var(--sc-text-sm);font-weight:600;line-height:1;padding:10px 20px;border-radius:var(--sc-radius-md);border:1.5px solid transparent;cursor:pointer;transition:all var(--sc-duration) var(--sc-ease);text-decoration:none;white-space:nowrap;}
+.sc-btn-primary{background:var(--sc-accent);color:var(--sc-text-inverted);border-color:var(--sc-accent);}
+.sc-btn-primary:hover{background:var(--sc-accent-hover);border-color:var(--sc-accent-hover);}
+.sc-btn-secondary{background:transparent;color:var(--sc-text-primary);border-color:var(--sc-border-strong);}
+.sc-btn-secondary:hover{background:var(--sc-bg-raised);border-color:var(--sc-text-tertiary);}
+.sc-btn-sm{font-size:var(--sc-text-xs);padding:7px 14px;border-radius:var(--sc-radius);}
+
+/* ═══ BADGES ═══ */
+.sc-badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--sc-font-mono);font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:var(--sc-radius-sm);border:1px solid var(--sc-border);background:var(--sc-badge-bg);color:var(--sc-text-secondary);}
+.sc-pill{font-family:var(--sc-font-mono);font-size:11px;font-weight:600;padding:5px 12px;border-radius:var(--sc-radius-full);border:1px solid var(--sc-border);background:var(--sc-bg-surface);color:var(--sc-text-secondary);}
+
+/* ═══ CARDS ═══ */
+.sc-card{background:var(--sc-card-bg);border:1px solid var(--sc-card-border);border-radius:var(--sc-radius-xl);padding:var(--sc-space-6);box-shadow:var(--sc-card-shadow);transition:transform var(--sc-duration) var(--sc-ease),box-shadow var(--sc-duration) var(--sc-ease),border-color var(--sc-duration) var(--sc-ease);}
+
+/* ═══ CTA ═══ */
+.sc-cta{background:var(--sc-accent-light);border:1px solid var(--sc-accent-border);border-radius:var(--sc-radius-xl);padding:var(--sc-space-6);}
+.sc-grid-texture{background-image:linear-gradient(rgba(122,18,24,0.06) 1px, transparent 1px),linear-gradient(90deg, rgba(122,18,24,0.06) 1px, transparent 1px);background-size:48px 48px;}
+[data-theme="dark"] .sc-grid-texture{background-image:linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);background-size:48px 48px;}
+.sc-divider{height:1px;background:var(--sc-border);border:none;margin:var(--sc-space-8) 0;}
+
+/* ═══ LOGO ═══ */
+.sc-logo-pill{display:inline-flex;align-items:center;padding:10px 20px;background:var(--sc-bg-surface);border:1px solid var(--sc-border);border-radius:var(--sc-radius-full);}
+[data-theme="dark"] .sc-logo-pill{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);}
+.sc-logo-adapt .logo-text{fill:#7A1218;transition:fill var(--sc-duration-slow) var(--sc-ease);}
+.sc-logo-adapt .logo-icon{fill:#B97727;transition:fill var(--sc-duration-slow) var(--sc-ease);}
+[data-theme="dark"] .sc-logo-adapt .logo-text{fill:#EDE4D6;}
+[data-theme="dark"] .sc-logo-adapt .logo-icon{fill:#D4A85A;}
+
+/* ═══ HEADER ═══ */
+.sc-header{display:flex;align-items:center;justify-content:space-between;background:transparent;box-sizing:border-box;flex-wrap:nowrap;gap:12px;}
+.sc-header-fixed{position:fixed;top:3px;left:0;right:0;z-index:100;transition:transform 0.3s ease;padding:var(--sc-space-2) var(--sc-space-8);}
+.sc-header-fixed.hidden{transform:translateY(-120%);}
+.sc-header-menu{display:none;width:36px;height:36px;border:1px solid var(--sc-border);border-radius:var(--sc-radius-full);background:var(--sc-bg-surface);cursor:pointer;align-items:center;justify-content:center;color:var(--sc-text-secondary);flex-shrink:0;}
+.sc-mobile-menu{display:none;position:fixed;top:56px;left:16px;right:16px;background:var(--sc-bg-surface);border:1px solid var(--sc-border);border-radius:var(--sc-radius-xl);padding:var(--sc-space-5);box-shadow:0 12px 40px rgba(0,0,0,0.12);z-index:99;flex-direction:column;gap:4px;}
+.sc-mobile-menu.open{display:flex;animation:menuSlideIn 0.2s ease;}
+@keyframes menuSlideIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.sc-mobile-menu a{font-size:var(--sc-text-sm);font-weight:500;color:var(--sc-text-secondary);text-decoration:none;padding:10px 14px;border-radius:var(--sc-radius-md);}
+.sc-mobile-menu a:hover{background:var(--sc-bg-raised);color:var(--sc-text-primary);}
+.sc-mobile-menu .menu-divider{height:1px;background:var(--sc-border-light);margin:4px 0;}
+.sc-header-nav{display:flex;align-items:center;gap:var(--sc-space-6);}
+.sc-header-nav a{font-size:var(--sc-text-sm);font-weight:500;color:var(--sc-text-secondary);text-decoration:none;transition:color var(--sc-duration) var(--sc-ease);}
+.sc-header-nav a:hover,.sc-header-nav a.active{color:var(--sc-text-primary);}
+.sc-header-nav a.active{border-bottom:2px solid var(--sc-accent);}
+.sc-footer{display:flex;align-items:center;justify-content:space-between;padding:var(--sc-space-10) var(--sc-space-8);border-top:1px solid var(--sc-border);font-size:var(--sc-text-base);color:var(--sc-text-tertiary);}
+.doc-badge{font-family:var(--sc-font-mono);font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:var(--sc-radius-sm);border:1px solid var(--sc-border);background:var(--sc-badge-bg);color:var(--sc-text-tertiary);}
+
+/* ═══ THEME SWITCH ═══ */
+.sc-theme-switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.sc-theme-switch .switch-track{width:48px;height:26px;border-radius:999px;background:var(--sc-border);position:relative;transition:background 0.35s ease;border:1px solid var(--sc-border-light);}
+.sc-theme-switch .switch-track::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.2);transition:transform 0.35s ease;}
+[data-theme="dark"] .sc-theme-switch .switch-track{background:#5C8A5C;}
+[data-theme="dark"] .sc-theme-switch .switch-track::after{transform:translateX(22px);}
+.sc-theme-switch .switch-label{font-family:var(--sc-font-mono);font-size:0.75rem;color:var(--sc-text-tertiary);letter-spacing:0.04em;}
+
+/* ═══ PAGE LAYOUT ═══ */
+.page-wrap{max-width:1120px;margin:0 auto;padding:0 var(--sc-gutter);}
+.doc-section{margin-bottom:var(--sc-space-16);}
+.doc-section-num{font-family:var(--sc-font-mono);font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--sc-accent-text);margin-bottom:var(--sc-space-2);}
+
+/* ═══ FLOW DIAGRAMS ═══ */
+.flow-vertical{display:flex;flex-direction:column;align-items:center;gap:0;}
+.flow-arrow{display:flex;flex-direction:column;align-items:center;color:var(--sc-text-muted);padding:4px 0;}
+.flow-arrow svg{width:16px;height:16px;stroke:var(--sc-accent);stroke-width:2;fill:none;}
+.flow-arrow-label{font-family:var(--sc-font-mono);font-size:9px;letter-spacing:0.06em;color:var(--sc-text-muted);margin-bottom:4px;}
+.node{border:1px solid var(--sc-border);border-radius:var(--sc-radius-lg);padding:var(--sc-space-3) var(--sc-space-4);background:var(--sc-card-bg);text-align:center;box-shadow:var(--sc-shadow-xs);}
+.node-accent{border-color:var(--sc-accent-border);background:var(--sc-accent-light);}
+.node-label{font-family:var(--sc-font-mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;}
+.node-desc{font-size:var(--sc-text-sm);color:var(--sc-text-tertiary);margin-top:2px;}
+
+/* ═══ SOURCE + FILE CARDS ═══ */
+.source-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.source-box{border:1px solid var(--sc-border);border-radius:var(--sc-radius-lg);padding:var(--sc-space-4) var(--sc-space-5);text-align:center;background:var(--sc-card-bg);transition:border-color 0.2s;}
+.source-box:hover{border-color:var(--sc-accent-border);}
+.source-box .icon{font-size:20px;margin-bottom:4px;}
+.source-box .name{font-family:var(--sc-font-mono);font-size:11px;font-weight:500;color:var(--sc-text-primary);}
+.file-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.file-card{border:1px solid var(--sc-border);border-radius:var(--sc-radius-lg);padding:var(--sc-space-4);background:var(--sc-card-bg);box-shadow:var(--sc-shadow-xs);}
+.file-card.core{border-color:var(--sc-accent-border);}
+.file-name{font-family:var(--sc-font-mono);font-size:12px;font-weight:600;color:var(--sc-text-primary);margin-bottom:4px;}
+.file-desc{font-size:var(--sc-text-sm);color:var(--sc-text-tertiary);line-height:1.45;}
+.file-tag{display:inline-block;font-family:var(--sc-font-mono);font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:2px 6px;border-radius:3px;margin-bottom:8px;}
+.file-tag.required{background:var(--sc-accent-light);color:var(--sc-accent-text);border:1px solid var(--sc-accent-border);}
+.file-tag.optional{background:var(--sc-gold-bg);color:var(--sc-gold);border:1px solid var(--sc-gold);}
+
+/* ═══ HUB DIAGRAM – ANIMATED SPOKES ═══ */
+.hub-wrapper{display:flex;justify-content:center;padding:var(--sc-space-8) 0;}
+.hub-container{position:relative;width:440px;height:440px;}
+.hub-svg{position:absolute;inset:0;width:100%;height:100%;z-index:1;overflow:visible;}
+/* Animated pulse dot along each spoke */
+@keyframes spokePulse0{0%{offset-distance:0%}100%{offset-distance:100%}}
+@keyframes spokePulse1{0%{offset-distance:0%}100%{offset-distance:100%}}
+@keyframes spokePulse2{0%{offset-distance:0%}100%{offset-distance:100%}}
+@keyframes spokePulse3{0%{offset-distance:0%}100%{offset-distance:100%}}
+.spoke-pulse{fill:var(--sc-accent);opacity:0.8;filter:blur(0.5px);}
+/* Hub center */
+.hub-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:110px;height:110px;border-radius:50%;background:var(--sc-accent);color:#FFF;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--sc-font-mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;text-align:center;z-index:3;box-shadow:0 4px 20px rgba(122,18,24,0.3);transition:transform 0.2s,box-shadow 0.2s;}
+.hub-center:hover{transform:translate(-50%,-50%) scale(1.05);box-shadow:0 8px 32px rgba(122,18,24,0.4);}
+/* Spoke nodes */
+.spoke-node{position:absolute;width:130px;height:80px;border:1px solid var(--sc-border);border-radius:var(--sc-radius-lg);background:var(--sc-card-bg);display:flex;align-items:center;justify-content:center;z-index:2;box-shadow:var(--sc-shadow-xs);cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s,transform 0.2s;text-align:center;}
+.spoke-node:hover{border-color:var(--sc-accent-border);box-shadow:var(--sc-shadow-lg);transform:scale(1.04);}
+.spoke-node.active{border-color:var(--sc-accent);box-shadow:0 0 0 3px var(--sc-accent-light),var(--sc-shadow-lg);}
+.spoke-node.top{top:0;left:50%;transform:translateX(-50%);}
+.spoke-node.top:hover{transform:translateX(-50%) translateY(-3px);}
+.spoke-node.top.active{transform:translateX(-50%) translateY(-3px);}
+.spoke-node.right{top:50%;right:0;transform:translateY(-50%);}
+.spoke-node.right:hover{transform:translateY(-50%) translateX(3px);}
+.spoke-node.right.active{transform:translateY(-50%) translateX(3px);}
+.spoke-node.bottom{bottom:0;left:50%;transform:translateX(-50%);}
+.spoke-node.bottom:hover{transform:translateX(-50%) translateY(3px);}
+.spoke-node.bottom.active{transform:translateX(-50%) translateY(3px);}
+.spoke-node.left{top:50%;left:0;transform:translateY(-50%);}
+.spoke-node.left:hover{transform:translateY(-50%) translateX(-3px);}
+.spoke-node.left.active{transform:translateY(-50%) translateX(-3px);}
+.spoke-node-title{font-family:var(--sc-font-mono);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--sc-text-primary);}
+.spoke-node-sub{font-size:10px;color:var(--sc-text-tertiary);margin-top:2px;}
+/* Spoke tooltip */
+.spoke-tooltip{position:fixed;z-index:500;background:var(--sc-bg-surface);border:1px solid var(--sc-accent-border);border-radius:var(--sc-radius-lg);padding:12px 16px;box-shadow:0 12px 36px rgba(0,0,0,0.12);max-width:240px;pointer-events:none;opacity:0;transition:opacity 0.15s ease;font-size:var(--sc-text-sm);}
+.spoke-tooltip.visible{opacity:1;}
+.spoke-tooltip-title{font-family:var(--sc-font-mono);font-size:10px;font-weight:700;color:var(--sc-accent-text);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
+.spoke-tooltip-link{font-family:var(--sc-font-mono);font-size:10px;color:var(--sc-gold);font-weight:600;margin-bottom:3px;}
+.spoke-tooltip-desc{font-size:12px;color:var(--sc-text-tertiary);line-height:1.5;}
+
+/* ═══ FIELD TABLE ═══ */
+.field-table{width:100%;border-collapse:collapse;font-size:var(--sc-text-sm);margin-top:var(--sc-space-3);}
+.field-table th{font-family:var(--sc-font-mono);font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--sc-text-tertiary);padding:8px 12px;text-align:left;border-bottom:1.5px solid var(--sc-border);background:var(--sc-bg-raised);}
+.field-table td{padding:8px 12px;border-bottom:1px solid var(--sc-border-light);color:var(--sc-text-secondary);}
+.field-table td:first-child{font-family:var(--sc-font-mono);font-weight:500;color:var(--sc-text-primary);white-space:nowrap;}
+.req-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--sc-accent);margin-right:4px;vertical-align:middle;}
+.opt-dot{display:inline-block;width:6px;height:6px;border-radius:50%;border:1.5px solid var(--sc-text-muted);margin-right:4px;vertical-align:middle;}
+
+/* ═══ KEY BADGE (BaseItemCode) ═══ */
+.key-badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--sc-font-mono);font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:var(--sc-gold-bg);color:var(--sc-gold);border:1px solid var(--sc-gold);cursor:help;position:relative;vertical-align:middle;margin-left:4px;}
+.key-badge::before{content:'⬡';font-size:8px;}
+.key-badge-popover{position:fixed;z-index:400;background:var(--sc-bg-surface);border:1px solid var(--sc-gold);border-radius:var(--sc-radius-lg);padding:14px 16px;box-shadow:0 12px 36px rgba(0,0,0,0.15);max-width:280px;pointer-events:none;opacity:0;transition:opacity 0.15s ease;}
+.key-badge-popover.visible{opacity:1;}
+.key-badge-popover-title{font-family:var(--sc-font-mono);font-size:10px;font-weight:700;color:var(--sc-gold);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;}
+.key-badge-popover-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sc-text-secondary);padding:4px 0;border-bottom:1px solid var(--sc-border-light);}
+.key-badge-popover-item:last-child{border-bottom:none;}
+.key-badge-popover-item .dot{width:6px;height:6px;border-radius:50%;background:var(--sc-accent);flex-shrink:0;}
+
+/* ═══ CONNECTIONS ═══ */
+.connection-block{background:var(--sc-card-bg);border:1px solid var(--sc-card-border);border-radius:var(--sc-radius-xl);padding:var(--sc-space-6);box-shadow:var(--sc-shadow-xs);margin-bottom:var(--sc-space-5);}
+.connection-step{display:flex;align-items:flex-start;gap:12px;padding:10px 0;}
+.connection-step+.connection-step{border-top:1px solid var(--sc-border-light);}
+.step-file{font-family:var(--sc-font-mono);font-size:11px;font-weight:600;color:var(--sc-accent-text);min-width:120px;flex-shrink:0;}
+.step-detail{font-size:var(--sc-text-sm);color:var(--sc-text-secondary);}
+.step-result{font-family:var(--sc-font-mono);font-size:12px;font-weight:600;color:var(--sc-accent-text);background:var(--sc-accent-light);padding:8px 14px;border-radius:var(--sc-radius-md);border:1px solid var(--sc-accent-border);margin-top:8px;display:inline-block;}
+
+/* ═══ STEPS / TAKEAWAYS ═══ */
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
+.step-card{background:var(--sc-card-bg);border:1px solid var(--sc-card-border);border-radius:var(--sc-radius-lg);padding:var(--sc-space-5);position:relative;}
+.step-num{font-family:var(--sc-font-mono);font-size:32px;font-weight:700;color:var(--sc-accent-text);opacity:0.2;line-height:1;margin-bottom:var(--sc-space-2);}
+.step-title{font-size:var(--sc-text-sm);font-weight:600;color:var(--sc-text-primary);margin-bottom:var(--sc-space-2);}
+.step-body{font-size:var(--sc-text-sm);color:var(--sc-text-tertiary);line-height:1.5;}
+.takeaway-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.takeaway{border:1px solid var(--sc-accent-border);border-radius:var(--sc-radius-xl);padding:var(--sc-space-6);background:var(--sc-accent-light);transition:transform 0.2s,border-color 0.2s;}
+.takeaway:hover{transform:translateY(-2px);border-color:var(--sc-accent);}
+.takeaway-num{font-family:var(--sc-font-mono);font-size:32px;font-weight:700;color:var(--sc-accent-text);opacity:0.2;line-height:1;margin-bottom:8px;}
+.takeaway-title{font-size:var(--sc-text-base);font-weight:600;color:var(--sc-text-primary);margin-bottom:6px;}
+.takeaway-desc{font-size:var(--sc-text-sm);color:var(--sc-text-tertiary);line-height:1.5;}
+
+/* ═══ EXAMPLE / CODE BLOCKS ═══ */
+.example-block{background:var(--sc-code-bg);border:1px solid var(--sc-border-light);border-radius:var(--sc-radius-md);padding:var(--sc-space-4) var(--sc-space-5);font-family:var(--sc-font-mono);font-size:12px;line-height:1.7;color:var(--sc-text-secondary);overflow-x:auto;margin:var(--sc-space-3) 0;}
+.example-block .hl{color:var(--sc-accent-text);font-weight:600;}
+
+/* ═══ ADMIN CONSOLE CARDS ═══ */
+.admin-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.admin-card{border:1px solid var(--sc-border);border-radius:var(--sc-radius-lg);padding:var(--sc-space-5);background:var(--sc-card-bg);}
+.admin-card .admin-title{font-size:var(--sc-text-sm);font-weight:600;color:var(--sc-text-primary);margin-bottom:4px;}
+.admin-card .admin-location{font-family:var(--sc-font-mono);font-size:10px;color:var(--sc-text-muted);margin-bottom:8px;}
+.admin-card ul{font-size:var(--sc-text-sm);color:var(--sc-text-tertiary);padding-left:16px;line-height:1.7;}
+
+/* ═══ CALLOUTS ═══ */
+.callout{border:1px solid var(--sc-gold);background:var(--sc-gold-bg);border-radius:var(--sc-radius-md);padding:var(--sc-space-3) var(--sc-space-4);font-size:var(--sc-text-sm);color:var(--sc-text-secondary);margin:var(--sc-space-4) 0;}
+.callout strong{color:var(--sc-gold);}
+
+/* ═══ KB CARDS ═══ */
+.kb-cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.kb-card{border:1px solid var(--sc-border);border-radius:var(--sc-radius-xl);padding:var(--sc-space-5) var(--sc-space-6);background:var(--sc-card-bg);text-decoration:none;display:flex;flex-direction:column;gap:6px;transition:transform var(--sc-duration) var(--sc-ease),box-shadow var(--sc-duration) var(--sc-ease),border-color var(--sc-duration) var(--sc-ease);}
+.kb-card:hover{transform:translateY(-2px);box-shadow:var(--sc-shadow-lg);border-color:var(--sc-accent-border);}
+.kb-card-title{font-size:var(--sc-text-sm);font-weight:600;color:var(--sc-accent-text);display:flex;align-items:center;justify-content:space-between;}
+.kb-card-title .arrow{font-size:var(--sc-text-base);transition:transform var(--sc-duration) var(--sc-ease);}
+.kb-card:hover .arrow{transform:translateX(3px);}
+.kb-card-desc{font-size:var(--sc-text-sm);color:var(--sc-text-tertiary);line-height:1.5;}
+
+/* ═══ OPTIONAL DIVIDER ═══ */
+.optional-divider{display:flex;align-items:center;gap:16px;margin:var(--sc-space-8) 0 var(--sc-space-5);}
+.optional-divider-line{flex:1;height:1px;background:var(--sc-border);}
+.optional-divider-label{font-family:var(--sc-font-mono);font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--sc-gold);background:var(--sc-gold-bg);border:1px solid var(--sc-gold);padding:4px 12px;border-radius:var(--sc-radius-full);white-space:nowrap;}
+
+/* ═══ COMPLETION STATE ═══ */
+.completion-block{border-top:1px solid var(--sc-border-light);margin-top:var(--sc-space-12);padding:var(--sc-space-10) 0;text-align:center;}
+.completion-check{width:48px;height:48px;border-radius:50%;border:2px solid var(--sc-border-strong);display:flex;align-items:center;justify-content:center;margin:0 auto var(--sc-space-5);color:var(--sc-border-strong);transition:border-color 0.6s ease,color 0.6s ease;}
+.completion-check.done{border-color:var(--sc-accent);color:var(--sc-accent);}
+.completion-text{font-family:var(--sc-font-mono);font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--sc-text-muted);transition:color 0.6s ease;}
+.completion-text.done{color:var(--sc-accent-text);}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+  .page-wrap{padding:0 16px;}
+  .source-grid{grid-template-columns:repeat(2,1fr);}
+  .file-grid{grid-template-columns:repeat(2,1fr);}
+  .steps-grid{grid-template-columns:repeat(2,1fr);}
+  .takeaway-grid{grid-template-columns:1fr;}
+  .admin-grid{grid-template-columns:1fr;}
+  .kb-cards-grid{grid-template-columns:1fr;}
+  .sc-header-nav{display:none !important;}
+  .sc-header-menu{display:flex !important;}
+  .sc-header-right{display:none !important;}
+  .sc-footer{flex-direction:column;gap:16px;text-align:center;padding:var(--sc-space-8) var(--sc-space-4) !important;}
+  .sc-h2{font-size:1.375rem;}
+  .sc-h3{font-size:1.125rem;}
+  .sc-display{font-size:2rem;}
+  .hub-container{width:300px;height:300px;}
+  .hub-center{width:80px;height:80px;font-size:9px;}
+  .spoke-node{width:90px;height:60px;}
+  .field-table{font-size:0.8125rem;}
+  .field-table th,.field-table td{padding:6px 8px;}
+  .connection-block{padding:var(--sc-space-4);}
+  .connection-step{flex-direction:column;gap:6px;}
+  .step-file{min-width:auto;}
+  .sc-card{padding:var(--sc-space-4);}
+  .print-btn-label{display:none;}
+}
+@media(max-width:500px){
+  .source-grid,.file-grid{grid-template-columns:1fr;}
+  .steps-grid{grid-template-columns:1fr;}
+  .hub-container{width:260px;height:260px;}
+  .spoke-node{width:76px;height:52px;}
+  .sc-h2{font-size:1.25rem;}
+}
+
+/* ═══ PRINT STYLES ═══ */
+@media print {
+  #sc-progress-bar,.sc-header-fixed,.sc-mobile-menu,.spoke-tooltip,.key-badge-popover{display:none !important;}
+  body{background:white;color:black;font-size:12pt;}
+  .page-wrap{max-width:100%;padding:0 24pt;}
+  .sc-card,.connection-block,.step-card,.takeaway,.admin-card,.kb-card,.sc-cta{border:1px solid #ccc;box-shadow:none;break-inside:avoid;}
+  .doc-section{margin-bottom:32pt;}
+  hr.sc-divider{border:none;border-top:1px solid #ddd;margin:24pt 0;}
+  .hub-wrapper{page-break-inside:avoid;}
+  a{color:inherit;text-decoration:none;}
+  .kb-card-title .arrow{display:none;}
+  .steps-grid{grid-template-columns:repeat(2,1fr);}
+  .file-grid{grid-template-columns:repeat(2,1fr);}
+  .takeaway-grid{grid-template-columns:repeat(3,1fr);}
+  [data-theme="dark"]{background:white;color:black;}
+  [data-theme="dark"] .sc-card,[data-theme="dark"] .connection-block{background:white;}
+  @page{margin:24pt 32pt;size:A4;}
+}
+</style>
+</head>
+<body>
+
+<!-- SCROLL PROGRESS BAR -->
+<div id="sc-progress-bar"><div id="sc-progress-fill"></div></div>
+
+<!-- TOOLTIPS (shared, positioned by JS) -->
+<div class="spoke-tooltip" id="spokeTooltip">
+  <div class="spoke-tooltip-title" id="spokeTooltipTitle"></div>
+  <div class="spoke-tooltip-link" id="spokeTooltipLink"></div>
+  <div class="spoke-tooltip-desc" id="spokeTooltipDesc"></div>
+</div>
+<div class="key-badge-popover" id="keyBadgePopover">
+  <div class="key-badge-popover-title">⬡ BaseItemCode connects to:</div>
+  <div class="key-badge-popover-item"><div class="dot"></div><span>inventory.csv &rarr; stock levels</span></div>
+  <div class="key-badge-popover-item"><div class="dot"></div><span>stories.csv &rarr; product descriptions</span></div>
+  <div class="key-badge-popover-item"><div class="dot"></div><span>options.csv &rarr; variations &amp; finishes</span></div>
+  <div class="key-badge-popover-item"><div class="dot"></div><span>sales_data.csv &rarr; order history</span></div>
+</div>
+
+<header class="sc-header sc-header-fixed" id="dmHeader">
+  <div class="sc-logo-pill" style="display:inline-flex;align-items:center;flex-shrink:0;">
+    <svg width="100" height="16" viewBox="0 0 134 20" fill="none" class="sc-logo-adapt">
+      <path class="logo-text" d="M41.0587 17.9895C39.7803 17.9895 38.6845 17.8983 37.7896 17.7251C36.8947 17.5518 36.1642 17.2418 35.6072 16.8132C35.0501 16.3846 34.6392 15.801 34.3835 15.0714C34.1278 14.3419 34 13.43 34 12.3266C34 11.0682 34.1278 10.0286 34.3835 9.19878C34.6392 8.37807 35.041 7.7215 35.6072 7.23819C36.1642 6.75488 36.8947 6.40836 37.7896 6.21686C38.6845 6.02536 39.7712 5.92505 41.0587 5.92505C41.9719 5.92505 42.7664 5.98888 43.433 6.12567C44.1087 6.26245 44.6749 6.45395 45.1588 6.70929C45.6337 6.96462 46.0263 7.26555 46.3186 7.63031C46.6199 7.98595 46.8482 8.36895 47.0217 8.77019C47.1952 9.1623 47.3048 9.62737 47.3687 10.1654C47.4326 10.6943 47.46 11.2597 47.46 11.8524L47.3048 12.4907H35.9359C35.9359 13.3479 36.0272 14.0501 36.2007 14.6064C36.3742 15.1535 36.6664 15.5547 37.0591 15.8101C37.4609 16.0654 37.9905 16.2295 38.6389 16.2934C39.2963 16.3572 40.0999 16.3937 41.0587 16.3937C41.9445 16.3937 42.675 16.3663 43.2503 16.3207C43.8256 16.2751 44.2913 16.184 44.6292 16.0472C44.9671 15.9104 45.2045 15.728 45.3415 15.4909C45.4784 15.2538 45.5515 14.9438 45.5515 14.5699H47.4783C47.4783 15.19 47.3687 15.7189 47.1495 16.1566C46.9304 16.5943 46.5742 16.9499 46.072 17.2144C45.5698 17.488 44.9123 17.6795 44.0904 17.8071C43.2686 17.9348 42.2641 17.9895 41.0587 17.9895ZM41.0587 7.53C40.4195 7.53 39.8442 7.53912 39.342 7.56648C38.8398 7.59383 38.3923 7.64855 38.0179 7.73974C37.6435 7.83093 37.3148 7.95859 37.05 8.13185C36.7851 8.30512 36.566 8.49661 36.4016 8.73371C36.2372 8.96168 36.1185 9.28997 36.0364 9.70033C35.9633 10.1198 35.9176 10.6213 35.9176 11.205H45.5332C45.5332 10.4207 45.451 9.80975 45.2867 9.37204C45.1223 8.92521 44.8575 8.56045 44.4922 8.27776C44.1361 7.99507 43.6704 7.79445 43.1042 7.68502C42.5381 7.57559 41.8532 7.52088 41.0496 7.52088" fill="#7C282C"/>
+      <path class="logo-text" d="M74.9034 7.21091C74.9034 6.40844 74.8121 5.77923 74.6477 5.31416C74.4742 4.84909 74.182 4.49345 73.7894 4.25635C73.3876 4.01926 72.8671 3.86423 72.2096 3.8004C71.5613 3.73657 70.7485 3.70009 69.7897 3.70009H65.2878C64.4295 3.70009 63.7172 3.72745 63.1328 3.77304C62.5484 3.81864 62.0644 3.92807 61.69 4.07397C61.3065 4.22899 61.0142 4.44785 60.8042 4.73054C60.5942 5.01323 60.4481 5.39623 60.3568 5.87042C60.2655 6.34461 60.2107 6.92823 60.1924 7.61215C60.1741 8.3052 60.1741 9.12591 60.1741 10.0834C60.1741 11.0409 60.1741 11.8707 60.2015 12.5638C60.2198 13.2568 60.2746 13.8313 60.3659 14.3055C60.4572 14.7797 60.6033 15.1627 60.8133 15.4454C61.0142 15.7372 61.3065 15.9561 61.69 16.102C62.0735 16.257 62.5575 16.3573 63.1328 16.4029C63.7172 16.4576 64.4386 16.4758 65.2878 16.4758H69.7897C70.5385 16.4758 71.1777 16.4576 71.7256 16.412C72.2644 16.3755 72.7301 16.3026 73.1045 16.1932C73.488 16.0837 73.7894 15.9378 74.0268 15.7554C74.2642 15.5731 74.4377 15.336 74.5747 15.0533C74.7025 14.7706 74.7939 14.4332 74.8395 14.0319C74.8852 13.6307 74.9126 13.1748 74.9126 12.6367H76.8393C76.8393 13.2751 76.8028 13.8587 76.7206 14.3693C76.6384 14.8891 76.5015 15.3451 76.2914 15.7463C76.0905 16.1476 75.8166 16.4941 75.4787 16.795C75.1409 17.0959 74.7117 17.333 74.1912 17.5245C73.6707 17.716 73.0497 17.8528 72.3283 17.944C71.6069 18.0352 70.7668 18.0808 69.808 18.0808H65.3061C64.1281 18.0808 63.1419 18.0078 62.3383 17.8619C61.5347 17.716 60.8681 17.5063 60.3476 17.2145C59.8271 16.9227 59.4253 16.5579 59.1423 16.1202C58.8592 15.6825 58.6492 15.1627 58.5213 14.57C58.3935 13.9772 58.3204 13.3024 58.293 12.5638C58.2748 11.816 58.2656 10.9862 58.2656 10.0834C58.2656 9.18062 58.2748 8.35079 58.293 7.60303C58.3113 6.85527 58.3843 6.18958 58.5213 5.58773C58.6492 4.99499 58.8592 4.47521 59.1423 4.03749C59.4253 3.59978 59.8271 3.23502 60.3476 2.94321C60.8681 2.65141 61.5347 2.43255 62.3383 2.29576C63.1419 2.14986 64.1373 2.0769 65.3061 2.0769H69.808C70.7668 2.0769 71.6069 2.1225 72.3283 2.21369C73.0497 2.30488 73.6707 2.44167 74.1912 2.62405C74.7117 2.80643 75.1409 3.04352 75.4787 3.31709C75.8166 3.59978 76.0905 3.92807 76.2914 4.30195C76.4923 4.68495 76.6384 5.11354 76.7206 5.59685C76.8028 6.08016 76.8393 6.60906 76.8393 7.19268H74.9126L74.9034 7.21091Z" fill="#7C282C"/>
+      <path class="logo-text" d="M103.23 14.2509H91.1941L89.1851 17.7708H86.957L95.7325 2.40527H98.4903L107.238 17.7708H105.22L103.22 14.2509H103.23ZM102.316 12.6551L97.221 3.68193L92.1073 12.6551H102.326H102.316Z" fill="#7C282C"/>
+      <path class="logo-text" d="M129.984 2.40527V4.01022H122.295V17.7708H120.369V4.01022H112.68V2.40527H129.984Z" fill="#7C282C"/>
+      <path class="logo-text" d="M132.054 2.40552V2.5879H131.525V3.98311H131.315V2.5879H130.785V2.40552H132.064H132.054ZM133.762 3.98311L133.689 2.91618C133.689 2.82499 133.68 2.70644 133.671 2.57878H133.662C133.625 2.66997 133.57 2.83411 133.534 2.95266L133.169 3.95575H132.931L132.566 2.91618C132.538 2.81587 132.484 2.66997 132.447 2.56966H132.438C132.438 2.66997 132.438 2.78852 132.429 2.90706L132.356 3.97399H132.146L132.274 2.40552H132.584L132.958 3.40861C133.004 3.52716 133.032 3.63658 133.068 3.73689H133.077C133.114 3.62747 133.15 3.4998 133.178 3.41773L133.552 2.40552H133.863L133.999 3.97399H133.78L133.762 3.98311Z" fill="#7C282C"/>
+      <path class="logo-icon" d="M14.9834 12.6017C12.3201 7.63258 9.89316 7.57978 7.46829 7.52703C6.36355 7.503 5.25924 7.47897 4.13321 6.99005L0 0H1.77913C3.72902 2.32775 5.60072 2.50883 7.47286 2.68996C9.91908 2.92663 12.3661 3.16337 14.9893 8.18915C17.6167 3.13904 20.0567 2.91743 22.4973 2.69577C24.3637 2.52625 26.2305 2.35671 28.1815 0.0275446H30L25.8799 6.99202C24.7351 7.50211 23.6138 7.52368 22.4921 7.54525C20.0703 7.59183 17.647 7.63834 14.9834 12.6017Z" fill="#B97727"/>
+      <path class="logo-icon" d="M14.9834 19.9982L14.9833 19.998L14.9822 20L14.9822 19.996C12.8327 15.9785 10.8242 15.1602 8.86004 14.9739L5.83551 9.85835C6.38221 9.96155 6.92664 10.0113 7.47093 10.061C9.91369 10.2843 12.3538 10.5073 14.9834 15.5602C17.6041 10.5196 20.0377 10.3049 22.4718 10.0901C23.0364 10.0402 23.6011 9.9904 24.1681 9.88032L21.138 14.9959C19.1607 15.1785 17.1516 15.9548 14.9834 19.9978V19.9982Z" fill="#B97727"/>
+    </svg>
+  </div>
+  <div class="sc-header-nav" style="flex:1;justify-content:center;">
+    <a href="#how-it-works" data-section="how-it-works">How It Works</a>
+    <a href="#your-files" data-section="your-files">Your Files</a>
+    <a href="#setup-process" data-section="setup-process">Setup Process</a>
+    <a href="#admin-guide" data-section="admin-guide">Admin Guide</a>
+  </div>
+  <div class="sc-header-menu" id="dmMenuToggle">
+    <svg class="menu-icon-open" width="16" height="16" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5" fill="none"><path d="M4 7h12M4 13h12"/></svg>
+    <svg class="menu-icon-close" width="16" height="16" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5" fill="none" style="display:none;"><path d="M6 6l8 8M14 6l-8 8"/></svg>
+  </div>
+  <div class="sc-header-right" style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
+    <button onclick="window.print()" class="sc-btn sc-btn-secondary sc-btn-sm" style="gap:6px;" title="Download as PDF">
+      <svg width="13" height="13" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5" fill="none"><path d="M4 14v3h12v-3"/><path d="M10 3v9M7 9l3 3 3-3"/></svg>
+      <span class="print-btn-label">Save PDF</span>
+    </button>
+    <label class="sc-theme-switch" id="themeSwitch">
+      <span class="switch-label">Light</span>
+      <div class="switch-track"></div>
+      <span class="switch-label">Dark</span>
+    </label>
+    <span class="doc-badge">v2.3</span>
+  </div>
+  <div class="sc-mobile-menu" id="dmMenu">
+    <a href="#how-it-works">How It Works</a>
+    <a href="#your-files">Your Files</a>
+    <a href="#setup-process">Setup Process</a>
+    <a href="#admin-guide">Admin Guide</a>
+    <div class="menu-divider"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;">
+      <label class="sc-theme-switch" id="themeSwitch4">
+        <span class="switch-label">Light</span>
+        <div class="switch-track"></div>
+        <span class="switch-label">Dark</span>
+      </label>
+      <button onclick="window.print()" class="sc-btn sc-btn-secondary sc-btn-sm">Save PDF</button>
+    </div>
+  </div>
+</header>
+<div style="height:76px;"></div>
+
+<div class="page-wrap">
+
+<!-- HERO -->
+<div style="background:var(--sc-bg-surface);position:relative;overflow:hidden;border:1px solid var(--sc-border);border-radius:var(--sc-radius-2xl);padding:var(--sc-space-20) var(--sc-space-8);text-align:center;margin-bottom:var(--sc-space-16);">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,color-mix(in srgb, var(--sc-accent) 8%, transparent),transparent 60%),radial-gradient(ellipse at 20% 80%,color-mix(in srgb, var(--sc-gold) 5%, transparent),transparent 50%);pointer-events:none;"></div>
+  <div class="sc-grid-texture" style="position:absolute;inset:0;pointer-events:none;opacity:0.4;"></div>
+  <div style="position:relative;">
+    <div style="display:inline-block;padding:4px 12px;border:1px solid var(--sc-accent-border);border-radius:var(--sc-radius-full);margin-bottom:var(--sc-space-5);">
+      <span class="sc-label" style="color:var(--sc-accent-text);margin:0;">eCat Data Model v2.3</span>
+    </div>
+    <h1 class="sc-display" style="margin-bottom:var(--sc-space-4);max-width:560px;margin-left:auto;margin-right:auto;">Everything you need<br>before your first import</h1>
+    <p class="sc-body" style="max-width:520px;margin:0 auto;margin-bottom:var(--sc-space-6);">A plain-language guide to how your data files work, how they connect, and what your team will see in eCat on day one.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <span class="sc-pill" style="border-color:var(--sc-accent-border);color:var(--sc-accent-text);">4 Core Files</span>
+      <span class="sc-pill" style="border-color:var(--sc-gold);color:var(--sc-gold);">Optional Files</span>
+      <span class="sc-pill">3 Critical Connections</span>
+    </div>
+  </div>
+</div>
+
+<section class="doc-section">
+  <span id="how-it-works"></span>
+  <div class="doc-section-num">How It Works</div>
+  <h2 class="sc-h2" style="margin-bottom:var(--sc-space-6);">From your systems to your reps&rsquo; iPads</h2>
+
+  <div class="flow-vertical">
+    <div style="width:100%;">
+      <div class="sc-label" style="text-align:center;margin-bottom:var(--sc-space-3);">Your Source Data</div>
+      <div class="source-grid">
+        <div class="source-box"><div class="icon"><svg width="22" height="22" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5" fill="none" style="color:var(--sc-accent-text);"><path d="M10 3v8l4 4"/><circle cx="10" cy="10" r="7"/></svg></div><div class="name">ERP System</div></div>
+        <div class="source-box"><div class="icon"><svg width="22" height="22" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5" fill="none" style="color:var(--sc-accent-text);"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div><div class="name">CRM System</div></div>
+        <div class="source-box"><div class="icon"><svg width="22" height="22" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5" fill="none" style="color:var(--sc-accent-text);"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg></div><div class="name">Spreadsheets</div></div>
+        <div class="source-box"><div class="icon"><svg width="22" height="22" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5" fill="none" style="color:var(--sc-accent-text);"><path d="M4 4h5v12H4zM11 4h5v8h-5z"/></svg></div><div class="name">Warehouse</div></div>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-label">Export to CSV</div><svg viewBox="0 0 16 16"><path d="M8 2v10M4 8l4 4 4-4"/></svg></div>
+    <div style="width:100%;">
+      <div class="sc-label" style="text-align:center;margin-bottom:var(--sc-space-3);">Core Files</div>
+      <div class="file-grid">
+        <div class="file-card core"><div class="file-tag required">Required</div><div class="file-name">products.csv</div><div class="file-desc">Your product catalog</div></div>
+        <div class="file-card core"><div class="file-tag required">Required</div><div class="file-name">customers.csv</div><div class="file-desc">Buyer accounts</div></div>
+        <div class="file-card core"><div class="file-tag required">Required</div><div class="file-name">inventory.csv</div><div class="file-desc">Stock levels</div></div>
+        <div class="file-card core"><div class="file-tag required">Required</div><div class="file-name">stories.csv</div><div class="file-desc">Product descriptions</div></div>
+      </div>
+    </div>
+    <div style="height:8px;"></div>
+    <div style="width:100%;">
+      <div class="sc-label" style="text-align:center;margin-bottom:var(--sc-space-3);">Optional Files</div>
+      <div class="file-grid" style="grid-template-columns:repeat(2,1fr);">
+        <div class="file-card"><div class="file-tag optional">Optional</div><div class="file-name">sales_data.csv</div><div class="file-desc">Sales history &amp; on-order data</div></div>
+        <div class="file-card"><div class="file-tag optional">Optional</div><div class="file-name">options.csv</div><div class="file-desc">Product variations; works alongside option_groups.csv and matrix_options.csv</div></div>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-label">Upload to Admin Console</div><svg viewBox="0 0 16 16"><path d="M8 2v10M4 8l4 4 4-4"/></svg></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0;width:100%;max-width:320px;">
+      <div class="node node-accent" style="width:100%;padding:var(--sc-space-4) var(--sc-space-5);">
+        <div class="node-label" style="color:var(--sc-accent-text);">Admin Console</div>
+        <div class="node-desc">Validates &amp; connects data</div>
+      </div>
+      <div class="flow-arrow"><div class="flow-arrow-label">Sync</div><svg viewBox="0 0 16 16"><path d="M8 2v10M4 8l4 4 4-4"/></svg></div>
+      <div class="node" style="width:100%;padding:var(--sc-space-4) var(--sc-space-5);">
+        <div class="node-label">eCat iPad</div>
+        <div class="node-desc">Field sales app</div>
+      </div>
+    </div>
+  </div>
+</section>
+<hr class="sc-divider">
+
+<section class="doc-section">
+  <div class="doc-section-num">Connections</div>
+  <h2 class="sc-h2" style="margin-bottom:var(--sc-space-2);">How the Files Connect</h2>
+  <p class="sc-body" style="margin-bottom:var(--sc-space-4);">Your product catalog is the center of everything. Hover any node to see how it connects.</p>
+
+  <!-- ANIMATED HUB DIAGRAM -->
+  <div class="hub-wrapper">
+    <div class="hub-container" id="hubDiagram">
+      <!-- Animated SVG spokes -->
+      <svg class="hub-svg" viewBox="0 0 440 440" id="hubSvg">
+        <!-- Static spoke lines -->
+        <line id="spoke-top" x1="220" y1="220" x2="220" y2="80" stroke="var(--sc-border-strong)" stroke-width="1.5" opacity="0.4"/>
+        <line id="spoke-right" x1="220" y1="220" x2="375" y2="220" stroke="var(--sc-border-strong)" stroke-width="1.5" opacity="0.4"/>
+        <line id="spoke-bottom" x1="220" y1="220" x2="220" y2="360" stroke="var(--sc-border-strong)" stroke-width="1.5" opacity="0.4"/>
+        <line id="spoke-left" x1="220" y1="220" x2="65" y2="220" stroke="var(--sc-border-strong)" stroke-width="1.5" opacity="0.4"/>
+        <!-- Pulse dots (animated via JS) -->
+        <circle class="spoke-pulse" id="pulse-top" r="4" cx="220" cy="220"/>
+        <circle class="spoke-pulse" id="pulse-right" r="4" cx="220" cy="220"/>
+        <circle class="spoke-pulse" id="pulse-bottom" r="4" cx="220" cy="220"/>
+        <circle class="spoke-pulse" id="pulse-left" r="4" cx="220" cy="220"/>
+      </svg>
+      <!-- Center -->
+      <div class="hub-center">Products<br>.csv</div>
+      <!-- Spoke nodes -->
+      <div class="spoke-node top" data-title="Inventory" data-link="Links via: BaseItemCode" data-desc="inventory.csv adds stock levels to every product. Same SKU = same product.">
+        <div><div class="spoke-node-title">Inventory</div><div class="spoke-node-sub">Stock levels</div></div>
+      </div>
+      <div class="spoke-node right" data-title="Stories" data-link="Links via: BaseItemCode" data-desc="stories.csv adds extended descriptions, care instructions, and marketing copy to each product.">
+        <div><div class="spoke-node-title">Stories</div><div class="spoke-node-sub">Descriptions</div></div>
+      </div>
+      <div class="spoke-node bottom" data-title="Sales History" data-link="Links via: BaseItemCode + BillToCode" data-desc="sales_data.csv adds order history and on-order visibility per customer and product combination.">
+        <div><div class="spoke-node-title">Orders</div><div class="spoke-node-sub">Sales history</div></div>
+      </div>
+      <div class="spoke-node left" data-title="Options" data-link="Links via: OptionSet fields" data-desc="options.csv and option_groups.csv add color, finish, and size variations. Referenced by OptionSet1..N in products.csv.">
+        <div><div class="spoke-node-title">Options</div><div class="spoke-node-sub">Variations</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:var(--sc-space-4);">
+    <div class="node" style="display:inline-block;padding:var(--sc-space-3) var(--sc-space-5);">
+      <div class="node-label">Customers.csv</div>
+      <div class="node-desc">Separate &mdash; linked via Territory &amp; Price codes</div>
+    </div>
+  </div>
+</section>
+<hr class="sc-divider">
+
+<section class="doc-section">
+  <span id="your-files"></span>
+  <div class="doc-section-num">File Reference</div>
+  <h2 class="sc-h2" style="margin-bottom:var(--sc-space-8);">Understanding Each File</h2>
+
+  <!-- PRODUCTS.CSV -->
+  <div class="sc-card" style="margin-bottom:var(--sc-space-6);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:var(--sc-space-4);">
+      <span class="file-tag required" style="margin:0;">Core</span>
+      <span class="sc-h3" style="margin:0;">products.csv</span>
+      <span class="sc-body-sm" style="margin:0;">&mdash; Your Product Catalog</span>
+    </div>
+    <p class="sc-body-sm" style="margin-bottom:var(--sc-space-4);">The complete list of everything you sell. Comes from your ERP, product database, or master spreadsheet.</p>
+    <table class="field-table">
+      <thead><tr><th>Field</th><th>Purpose</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>BaseItemCode <span class="key-badge" data-key>KEY</span></td><td>Product SKU &mdash; the master key that links all files</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>LongDesc</td><td>Primary catalog title shown in the product grid</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>ShortDesc</td><td>Optional shorter product name; falls back to LongDesc if blank</td><td><span class="opt-dot"></span>Optional</td></tr>
+        <tr><td>TradeNameCode</td><td>Brand identifier (e.g., ELK)</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>CategoryCodes</td><td>Product category (e.g., FLAMP)</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>CollectionCodes</td><td>Product collection; required when strict catalog validation is enabled (default for most orgs)</td><td><span class="req-dot"></span>Required*</td></tr>
+        <tr><td>NetPrice</td><td>Base price used for all price-level calculations</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>ImageFileName</td><td>Product image filename</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>OptionSet1..N</td><td>Links to option groups for product variations</td><td><span class="opt-dot"></span>Optional</td></tr>
+        <tr><td>PromotionPrice</td><td>Promotional pricing override (header is case-insensitive)</td><td><span class="req-dot"></span>Required</td></tr>
+      </tbody>
+    </table>
+    <div class="callout" style="margin-top:var(--sc-space-4);"><strong>Note on required fields:</strong> <code>BaseItemCode</code>, <code>LongDesc</code>, <code>TradeNameCode</code>, <code>CollectionCodes</code>, <code>CategoryCodes</code>, <code>ImageFileName</code>, and <code>PromotionPrice</code> are all required columns. <code>NetPrice</code> is essential for price-level calculations. <code>CollectionCodes</code> is required when strict catalog validation is active (default for most organizations).</div>
+    <div class="example-block" style="margin-top:var(--sc-space-4);">
+      <span class="hl">BaseItemCode:</span> H0019-11559 &nbsp;&nbsp; <span class="hl">LongDesc:</span> ABBERLEY 69" HIGH 1-LIGHT FLOOR LAMP<br>
+      <span class="hl">TradeNameCode:</span> ELK &nbsp;&nbsp; <span class="hl">CategoryCodes:</span> FLAMP &nbsp;&nbsp; <span class="hl">NetPrice:</span> 150.00
+    </div>
+    <div class="callout"><strong>Three different description fields:</strong> <code>LongDesc</code> = primary catalog title shown in the grid. <code>ShortDesc</code> = optional shorter line; if blank, LongDesc is used. <code>ProductStory</code> (in stories.csv) = extended marketing description shown in the detail view, tear sheets, and emails. Two different files, three different fields.</div>
+  </div>
+
+  <!-- CUSTOMERS.CSV -->
+  <div class="sc-card" style="margin-bottom:var(--sc-space-6);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:var(--sc-space-4);">
+      <span class="file-tag required" style="margin:0;">Core</span>
+      <span class="sc-h3" style="margin:0;">customers.csv</span>
+      <span class="sc-body-sm" style="margin:0;">&mdash; Your Customer Accounts</span>
+    </div>
+    <p class="sc-body-sm" style="margin-bottom:var(--sc-space-4);">Who can buy from you and where they want products shipped. From your CRM or accounting system.</p>
+    <table class="field-table">
+      <thead><tr><th>Field</th><th>Purpose</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>BillToCode</td><td>Customer account number</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>BillToName</td><td>Customer company name</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>BillToAddress1</td><td>Billing street address</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>BillToCity</td><td>Billing city</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>BillToState</td><td>Billing state</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>BillToPostCode</td><td>Billing postal code</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>DefaultPriceCode</td><td>Sets customer&rsquo;s pricing level &mdash; drives automatic price selection when a rep selects this customer</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>TerritoryCodes</td><td>Assigns customer to sales rep(s) &mdash; controls which customers appear on each rep&rsquo;s device</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>ShipToCode</td><td>Shipping location ID (one row per location)</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>ShipToAddress1</td><td>Shipping street address (required per location)</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>ShipToCity</td><td>Shipping city (required per location)</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>ShipToState</td><td>Shipping state (required per location)</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>ShipToPostCode</td><td>Shipping postal code (required per location)</td><td><span class="req-dot"></span>Required</td></tr>
+      </tbody>
+    </table>
+    <div class="example-block" style="margin-top:var(--sc-space-4);">
+      Row 1: <span class="hl">BillToCode=188</span>, BillToName="APPLE GOLD", <span class="hl">TerritoryCodes=13</span>, ShipToCode=1<br>
+      Row 2: BillToCode=188, ShipToCode=2 &nbsp;&nbsp;<span style="color:var(--sc-text-muted);">&larr; Same customer, second location</span>
+    </div>
+  </div>
+
+  <!-- INVENTORY.CSV -->
+  <div class="sc-card" style="margin-bottom:var(--sc-space-6);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:var(--sc-space-4);">
+      <span class="file-tag required" style="margin:0;">Core</span>
+      <span class="sc-h3" style="margin:0;">inventory.csv</span>
+      <span class="sc-body-sm" style="margin:0;">&mdash; Stock Levels</span>
+    </div>
+    <table class="field-table">
+      <thead><tr><th>Field</th><th>Purpose</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>BaseItemCode <span class="key-badge" data-key>KEY</span></td><td>Must match products.csv SKU</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>QtyAvailable</td><td>Quantity available to promise for immediate shipment</td><td><span class="opt-dot"></span>Recommended</td></tr>
+        <tr><td>QtyOnHand</td><td>Physical inventory count in the warehouse</td><td><span class="opt-dot"></span>Optional</td></tr>
+        <tr><td>QtyReserved</td><td>Quantity committed to unshipped sales orders</td><td><span class="opt-dot"></span>Optional</td></tr>
+        <tr><td>NextReceiptDate</td><td>Date of next product receipt at your warehouse</td><td><span class="opt-dot"></span>Optional</td></tr>
+        <tr><td>NextReceiptQty</td><td>Quantity of next product receipt at your warehouse</td><td><span class="opt-dot"></span>Optional</td></tr>
+      </tbody>
+    </table>
+    <div class="callout" style="margin-top:var(--sc-space-4);"><strong>Note:</strong> <code>BaseItemCode</code> is the only column that causes a fatal import error if missing. <code>QtyAvailable</code> is strongly recommended &mdash; without it, inventory data won&rsquo;t be meaningful to reps in the field.</div>
+  </div>
+
+  <!-- STORIES.CSV -->
+  <div class="sc-card" style="margin-bottom:var(--sc-space-6);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:var(--sc-space-4);">
+      <span class="file-tag required" style="margin:0;">Core</span>
+      <span class="sc-h3" style="margin:0;">stories.csv</span>
+      <span class="sc-body-sm" style="margin:0;">&mdash; Product Stories</span>
+    </div>
+    <p class="sc-body-sm" style="margin-bottom:var(--sc-space-4);">Extended product descriptions, specs, care instructions, and marketing copy. Displayed in eCat&rsquo;s product detail view, tear sheets, PDF catalogs, and product emails.</p>
+    <table class="field-table">
+      <thead><tr><th>Field</th><th>Purpose</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>BaseItemCode <span class="key-badge" data-key>KEY</span></td><td>Must match products.csv SKU</td><td><span class="req-dot"></span>Required</td></tr>
+        <tr><td>ProductStory</td><td>Extended &ldquo;product romance&rdquo; description (header is case-insensitive)</td><td><span class="req-dot"></span>Required</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><strong>Think of it as:</strong> LongDesc = &ldquo;What it&rsquo;s called&rdquo; &nbsp;&bull;&nbsp; ProductStory = &ldquo;The full story about it&rdquo;</div>
+  </div>
+
+  <!-- OPTIONAL FILES -->
+  <div class="optional-divider">
+    <div class="optional-divider-line"></div>
+    <div class="optional-divider-label">Optional Files &mdash; Add when you&rsquo;re ready</div>
+    <div class="optional-divider-line"></div>
+  </div>
+  <p class="sc-body-sm" style="text-align:center;margin-bottom:var(--sc-space-6);margin-top:calc(-1 * var(--sc-space-2));">These files enhance eCat but aren&rsquo;t required to go live. Add them as your setup matures.</p>
+  <div style="margin-bottom:var(--sc-space-6);">
+    <div class="sc-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:var(--sc-space-3);"><span class="file-tag optional" style="margin:0;">Optional</span><span class="sc-h4">sales_data.csv</span></div>
+      <p class="sc-body-sm">Summarized sales history for in-app customer reporting. One row per customer/product combination, linked via <code>BillToCode</code> and <code>BaseItemCode <span class="key-badge" data-key>KEY</span></code>. Powers the Invoices/Favorites and On Order views inside eCat, letting reps quickly see what a customer has purchased and what&rsquo;s on order.</p>
+    </div>
+  </div>
+  <div class="sc-card" style="margin-bottom:var(--sc-space-6);">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:var(--sc-space-3);"><span class="file-tag optional" style="margin:0;">Optional</span><span class="sc-h4">options.csv + option_groups.csv</span></div>
+    <p class="sc-body-sm" style="margin-bottom:var(--sc-space-4);">Product variations (colors, finishes, sizes). Two files work together:</p>
+    <div class="steps-grid" style="grid-template-columns:repeat(4,1fr);">
+      <div class="step-card"><div class="step-num">1</div><div class="step-title">Define Options</div><div class="step-body">options.csv: Code=100, Name=Black</div></div>
+      <div class="step-card"><div class="step-num">2</div><div class="step-title">Group Them</div><div class="step-body">option_groups.csv: Code=FIN, Name=Finishes, Options=100,101,102</div></div>
+      <div class="step-card"><div class="step-num">3</div><div class="step-title">Assign to Products</div><div class="step-body">products.csv: OptionSet1 = FIN</div></div>
+      <div class="step-card"><div class="step-num">4</div><div class="step-title">Price Behavior</div><div class="step-body">Addends, factors, or matrix pricing</div></div>
+    </div>
+  </div>
+</section>
+<hr class="sc-divider">
+
+<section class="doc-section">
+  <div class="doc-section-num">Critical Links</div>
+  <h2 class="sc-h2" style="margin-bottom:var(--sc-space-8);">The Three Critical Connections</h2>
+  <div class="connection-block">
+    <div class="sc-h4" style="margin-bottom:var(--sc-space-4);"><span style="font-family:var(--sc-font-mono);font-weight:700;color:var(--sc-accent-text);margin-right:4px;">01</span> Product SKU Links Everything</div>
+    <p class="sc-body-sm" style="margin-bottom:var(--sc-space-4);">BaseItemCode is the master key connecting products to inventory, stories, options, and orders.</p>
+    <div class="connection-step"><div class="step-file">products.csv</div><div class="step-detail">BaseItemCode = <span class="sc-mono" style="color:var(--sc-accent-text);">"H0019-11559"</span>, LongDesc = "Floor Lamp", NetPrice = $150</div></div>
+    <div class="connection-step"><div class="step-file">inventory.csv</div><div class="step-detail">Same SKU &rarr; QtyAvailable = 5</div></div>
+    <div class="connection-step"><div class="step-file">stories.csv</div><div class="step-detail">Same SKU &rarr; Full product description</div></div>
+    <div class="connection-step"><div class="step-file">options.csv</div><div class="step-detail">Via OptionSet &rarr; Black, White, Gold finishes</div></div>
+    <div class="step-result">Rep sees: name, price, 5 in stock, full story, 3 finish options &mdash; all linked by one SKU</div>
+  </div>
+  <div class="connection-block">
+    <div class="sc-h4" style="margin-bottom:var(--sc-space-4);"><span style="font-family:var(--sc-font-mono);font-weight:700;color:var(--sc-accent-text);margin-right:4px;">02</span> Territory Code Assigns Customers to Reps</div>
+    <div class="connection-step"><div class="step-file">customers.csv</div><div class="step-detail">Customer "APPLE GOLD" &rarr; TerritoryCodes = <span class="sc-mono" style="color:var(--sc-accent-text);">"13"</span></div></div>
+    <div class="connection-step"><div class="step-file">Admin Console</div><div class="step-detail">User "John Smith" &rarr; TerritoryCode = "13"</div></div>
+    <div class="step-result">John Smith only sees customers assigned to territory 13 on his iPad</div>
+  </div>
+  <div class="connection-block">
+    <div class="sc-h4" style="margin-bottom:var(--sc-space-4);"><span style="font-family:var(--sc-font-mono);font-weight:700;color:var(--sc-accent-text);margin-right:4px;">03</span> Price Code Sets Customer Pricing</div>
+    <div class="connection-step"><div class="step-file">customers.csv</div><div class="step-detail">Customer "GRUPO CAOR" &rarr; DefaultPriceCode = <span class="sc-mono" style="color:var(--sc-accent-text);">"4"</span></div></div>
+    <div class="connection-step"><div class="step-file">Admin Console</div><div class="step-detail">Price Level "4" = Distributor = 40% of NetPrice</div></div>
+    <div class="connection-step"><div class="step-file">products.csv</div><div class="step-detail">NetPrice = $1,542.50 &rarr; Customer sees: <span class="sc-mono" style="color:var(--sc-accent-text);">$617.00</span></div></div>
+  </div>
+</section>
+<hr class="sc-divider">
+
+<section class="doc-section">
+  <span id="admin-guide"></span>
+  <div class="doc-section-num">Admin Console</div>
+  <h2 class="sc-h2" style="margin-bottom:var(--sc-space-6);">What You Configure Directly (Not in Files)</h2>
+  <div class="admin-grid">
+    <div class="admin-card"><div class="admin-title">Users &amp; Territories</div><div class="admin-location">Users &gt; Users</div><ul><li>Create user accounts</li><li>Assign territory codes</li><li>Set permissions</li></ul></div>
+    <div class="admin-card"><div class="admin-title">User Groups</div><div class="admin-location">Users &gt; User Groups</div><ul><li>Control product visibility by brand/category</li><li>Control customer visibility</li><li>Set pricing permissions</li></ul></div>
+    <div class="admin-card"><div class="admin-title">Price Levels</div><div class="admin-location">Products &gt; Price Levels</div><ul><li>Code 0 &rarr; Net (100%)</li><li>Code 4 &rarr; Distributor (40%)</li><li>Code R &rarr; Retail (200%)</li></ul></div>
+    <div class="admin-card"><div class="admin-title">Taxonomy Display Names</div><div class="admin-location">Products &gt; Trade Names / Categories</div><ul><li>Turn codes into friendly names</li><li>ELK &rarr; &ldquo;Elk Lighting&rdquo;</li></ul></div>
+  </div>
+</section>
+<hr class="sc-divider">
+
+<section class="doc-section">
+  <span id="setup-process"></span>
+  <div class="doc-section-num">Process</div>
+  <h2 class="sc-h2" style="margin-bottom:var(--sc-space-8);">How It All Flows Together</h2>
+  <div class="steps-grid">
+    <div class="step-card"><div class="step-num">01</div><div class="step-title">Upload Files</div><div class="step-body">Admin Console &gt; Tools &gt; Import Data. Upload products, customers, inventory, stories, options, and sales_data.csv (optional sales history).</div></div>
+    <div class="step-card"><div class="step-num">02</div><div class="step-title">System Connects</div><div class="step-body">Links inventory to products via SKU. Links customers to reps via territory. Links pricing via price codes.</div></div>
+    <div class="step-card"><div class="step-num">03</div><div class="step-title">Rep Syncs iPad</div><div class="step-body">Each rep gets a personalized package: their products, their customers, correct pricing, current inventory. Works offline.</div></div>
+    <div class="step-card"><div class="step-num">04</div><div class="step-title">Orders Flow Back</div><div class="step-body">Rep creates order &rarr; syncs to server &rarr; exports to your ERP. Complete cycle.</div></div>
+  </div>
+</section>
+<hr class="sc-divider">
+
+<section class="doc-section">
+  <div class="doc-section-num">Summary</div>
+  <h2 class="sc-h2" style="margin-bottom:var(--sc-space-8);">Three Things to Remember</h2>
+  <div class="takeaway-grid">
+    <div class="takeaway"><div class="takeaway-num">01</div><div class="takeaway-title">Product SKU Connects Everything</div><div class="takeaway-desc">BaseItemCode is the master key that links products to inventory, stories, options, and orders.</div></div>
+    <div class="takeaway"><div class="takeaway-num">02</div><div class="takeaway-title">Two Codes Control Access</div><div class="takeaway-desc">Territory Code = which customers a rep sees. Price Code = what pricing a customer gets.</div></div>
+    <div class="takeaway"><div class="takeaway-num">03</div><div class="takeaway-title">Simple 4-Step Flow</div><div class="takeaway-desc">Upload files &rarr; System connects them &rarr; Reps sync &rarr; Orders flow back.</div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="sc-cta" style="margin-bottom:var(--sc-space-8);display:flex;align-items:center;justify-content:space-between;gap:var(--sc-space-6);flex-wrap:wrap;">
+  <div>
+    <div class="sc-label" style="color:var(--sc-accent-text);margin-bottom:var(--sc-space-2);">Ready to get started?</div>
+    <div class="sc-h4" style="margin-bottom:var(--sc-space-2);">Log into your Admin Console and start with the Quick Start Guide</div>
+    <p class="sc-body-sm">It walks you through logging in, navigating the interface, and where to find key settings &mdash; the right starting point before your first import.</p>
+  </div>
+  <a href="https://supercatsolutions.com/knowledgebase/admin-console-quick-start-guide" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;font-family:var(--sc-font-sans);font-size:var(--sc-text-sm);font-weight:600;padding:12px 24px;border-radius:var(--sc-radius-lg);background:var(--sc-accent);color:white;border:1.5px solid var(--sc-accent);text-decoration:none;white-space:nowrap;transition:background 0.2s;" onmouseover="this.style.background='var(--sc-accent-hover)'" onmouseout="this.style.background='var(--sc-accent)'">Admin Console Quick Start &rarr;</a>
+</div>
+
+<!-- KB RESOURCES -->
+<section class="doc-section" style="margin-bottom:var(--sc-space-8);">
+  <hr class="sc-divider">
+  <div class="doc-section-num" style="text-align:center;margin-bottom:var(--sc-space-2);">Knowledge Base</div>
+  <h2 class="sc-h2" style="text-align:center;margin-bottom:var(--sc-space-3);">Further Reading for Admins</h2>
+  <p class="sc-body" style="text-align:center;margin-bottom:var(--sc-space-8);max-width:500px;margin-left:auto;margin-right:auto;">These guides cover the day-to-day admin tasks that go hand-in-hand with managing your data.</p>
+  <div class="kb-cards-grid">
+    <a href="https://supercatsolutions.com/knowledgebase/admin-console-quick-start-guide" target="_blank" rel="noopener noreferrer" class="kb-card">
+      <div class="kb-card-title">Admin Console Quick Start Guide <span class="arrow">&rarr;</span></div>
+      <div class="kb-card-desc">How to log in, navigate the interface, and find key features in the Admin Console.</div>
+    </a>
+    <a href="https://supercatsolutions.com/knowledgebase/managing-user-accounts" target="_blank" rel="noopener noreferrer" class="kb-card">
+      <div class="kb-card-title">Managing User Accounts <span class="arrow">&rarr;</span></div>
+      <div class="kb-card-desc">Adding users, updating email addresses, resetting passwords, and enabling or disabling access.</div>
+    </a>
+    <a href="https://supercatsolutions.com/knowledgebase/common-rep-questions-admin-solutions" target="_blank" rel="noopener noreferrer" class="kb-card">
+      <div class="kb-card-title">Common Rep Questions &amp; Admin Solutions <span class="arrow">&rarr;</span></div>
+      <div class="kb-card-desc">Troubleshooting product visibility, pricing problems, and customer access issues without escalating to support.</div>
+    </a>
+    <a href="https://supercatsolutions.com/knowledgebase/supporting-your-users-login-issues" target="_blank" rel="noopener noreferrer" class="kb-card">
+      <div class="kb-card-title">Supporting Your Users: Login Issues <span class="arrow">&rarr;</span></div>
+      <div class="kb-card-desc">Solving the most common login problems your reps will encounter &mdash; quickly and without escalating to SuperCat.</div>
+    </a>
+  </div>
+</section>
+
+<!-- COMPLETION MOMENT -->
+<div class="completion-block" id="completionBlock">
+  <div class="completion-check" id="completionCheck">
+    <svg width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <div class="completion-text" id="completionText">You&rsquo;ve covered the full eCat data model</div>
+  <div style="margin-top:var(--sc-space-3);display:flex;align-items:center;justify-content:center;gap:12px;opacity:0.5;">
+    <svg width="60" height="10" viewBox="0 0 134 20" fill="none" class="sc-logo-adapt">
+      <path class="logo-icon" d="M14.9834 12.6017C12.3201 7.63258 9.89316 7.57978 7.46829 7.52703C6.36355 7.503 5.25924 7.47897 4.13321 6.99005L0 0H1.77913C3.72902 2.32775 5.60072 2.50883 7.47286 2.68996C9.91908 2.92663 12.3661 3.16337 14.9893 8.18915C17.6167 3.13904 20.0567 2.91743 22.4973 2.69577C24.3637 2.52625 26.2305 2.35671 28.1815 0.0275446H30L25.8799 6.99202C24.7351 7.50211 23.6138 7.52368 22.4921 7.54525C20.0703 7.59183 17.647 7.63834 14.9834 12.6017Z" fill="#B97727"/>
+      <path class="logo-icon" d="M14.9834 19.9982L14.9833 19.998L14.9822 20L14.9822 19.996C12.8327 15.9785 10.8242 15.1602 8.86004 14.9739L5.83551 9.85835C6.38221 9.96155 6.92664 10.0113 7.47093 10.061C9.91369 10.2843 12.3538 10.5073 14.9834 15.5602C17.6041 10.5196 20.0377 10.3049 22.4718 10.0901C23.0364 10.0402 23.6011 9.9904 24.1681 9.88032L21.138 14.9959C19.1607 15.1785 17.1516 15.9548 14.9834 19.9978V19.9982Z" fill="#B97727"/>
+    </svg>
+  </div>
+</div>
+
+</div>
+
+<footer class="sc-footer" style="margin-top:var(--sc-space-12);padding:var(--sc-space-10) var(--sc-space-8);">
+  <div style="display:inline-flex;align-items:center;">
+    <svg width="100" height="16" viewBox="0 0 134 20" fill="none" class="sc-logo-adapt">
+      <path class="logo-text" d="M41.0587 17.9895C39.7803 17.9895 38.6845 17.8983 37.7896 17.7251C36.8947 17.5518 36.1642 17.2418 35.6072 16.8132C35.0501 16.3846 34.6392 15.801 34.3835 15.0714C34.1278 14.3419 34 13.43 34 12.3266C34 11.0682 34.1278 10.0286 34.3835 9.19878C34.6392 8.37807 35.041 7.7215 35.6072 7.23819C36.1642 6.75488 36.8947 6.40836 37.7896 6.21686C38.6845 6.02536 39.7712 5.92505 41.0587 5.92505C41.9719 5.92505 42.7664 5.98888 43.433 6.12567C44.1087 6.26245 44.6749 6.45395 45.1588 6.70929C45.6337 6.96462 46.0263 7.26555 46.3186 7.63031C46.6199 7.98595 46.8482 8.36895 47.0217 8.77019C47.1952 9.1623 47.3048 9.62737 47.3687 10.1654C47.4326 10.6943 47.46 11.2597 47.46 11.8524L47.3048 12.4907H35.9359C35.9359 13.3479 36.0272 14.0501 36.2007 14.6064C36.3742 15.1535 36.6664 15.5547 37.0591 15.8101C37.4609 16.0654 37.9905 16.2295 38.6389 16.2934C39.2963 16.3572 40.0999 16.3937 41.0587 16.3937C41.9445 16.3937 42.675 16.3663 43.2503 16.3207C43.8256 16.2751 44.2913 16.184 44.6292 16.0472C44.9671 15.9104 45.2045 15.728 45.3415 15.4909C45.4784 15.2538 45.5515 14.9438 45.5515 14.5699H47.4783C47.4783 15.19 47.3687 15.7189 47.1495 16.1566C46.9304 16.5943 46.5742 16.9499 46.072 17.2144C45.5698 17.488 44.9123 17.6795 44.0904 17.8071C43.2686 17.9348 42.2641 17.9895 41.0587 17.9895ZM41.0587 7.53C40.4195 7.53 39.8442 7.53912 39.342 7.56648C38.8398 7.59383 38.3923 7.64855 38.0179 7.73974C37.6435 7.83093 37.3148 7.95859 37.05 8.13185C36.7851 8.30512 36.566 8.49661 36.4016 8.73371C36.2372 8.96168 36.1185 9.28997 36.0364 9.70033C35.9633 10.1198 35.9176 10.6213 35.9176 11.205H45.5332C45.5332 10.4207 45.451 9.80975 45.2867 9.37204C45.1223 8.92521 44.8575 8.56045 44.4922 8.27776C44.1361 7.99507 43.6704 7.79445 43.1042 7.68502C42.5381 7.57559 41.8532 7.52088 41.0496 7.52088" fill="#7C282C"/>
+      <path class="logo-text" d="M74.9034 7.21091C74.9034 6.40844 74.8121 5.77923 74.6477 5.31416C74.4742 4.84909 74.182 4.49345 73.7894 4.25635C73.3876 4.01926 72.8671 3.86423 72.2096 3.8004C71.5613 3.73657 70.7485 3.70009 69.7897 3.70009H65.2878C64.4295 3.70009 63.7172 3.72745 63.1328 3.77304C62.5484 3.81864 62.0644 3.92807 61.69 4.07397C61.3065 4.22899 61.0142 4.44785 60.8042 4.73054C60.5942 5.01323 60.4481 5.39623 60.3568 5.87042C60.2655 6.34461 60.2107 6.92823 60.1924 7.61215C60.1741 8.3052 60.1741 9.12591 60.1741 10.0834C60.1741 11.0409 60.1741 11.8707 60.2015 12.5638C60.2198 13.2568 60.2746 13.8313 60.3659 14.3055C60.4572 14.7797 60.6033 15.1627 60.8133 15.4454C61.0142 15.7372 61.3065 15.9561 61.69 16.102C62.0735 16.257 62.5575 16.3573 63.1328 16.4029C63.7172 16.4576 64.4386 16.4758 65.2878 16.4758H69.7897C70.5385 16.4758 71.1777 16.4576 71.7256 16.412C72.2644 16.3755 72.7301 16.3026 73.1045 16.1932C73.488 16.0837 73.7894 15.9378 74.0268 15.7554C74.2642 15.5731 74.4377 15.336 74.5747 15.0533C74.7025 14.7706 74.7939 14.4332 74.8395 14.0319C74.8852 13.6307 74.9126 13.1748 74.9126 12.6367H76.8393C76.8393 13.2751 76.8028 13.8587 76.7206 14.3693C76.6384 14.8891 76.5015 15.3451 76.2914 15.7463C76.0905 16.1476 75.8166 16.4941 75.4787 16.795C75.1409 17.0959 74.7117 17.333 74.1912 17.5245C73.6707 17.716 73.0497 17.8528 72.3283 17.944C71.6069 18.0352 70.7668 18.0808 69.808 18.0808H65.3061C64.1281 18.0808 63.1419 18.0078 62.3383 17.8619C61.5347 17.716 60.8681 17.5063 60.3476 17.2145C59.8271 16.9227 59.4253 16.5579 59.1423 16.1202C58.8592 15.6825 58.6492 15.1627 58.5213 14.57C58.3935 13.9772 58.3204 13.3024 58.293 12.5638C58.2748 11.816 58.2656 10.9862 58.2656 10.0834C58.2656 9.18062 58.2748 8.35079 58.293 7.60303C58.3113 6.85527 58.3843 6.18958 58.5213 5.58773C58.6492 4.99499 58.8592 4.47521 59.1423 4.03749C59.4253 3.59978 59.8271 3.23502 60.3476 2.94321C60.8681 2.65141 61.5347 2.43255 62.3383 2.29576C63.1419 2.14986 64.1373 2.0769 65.3061 2.0769H69.808C70.7668 2.0769 71.6069 2.1225 72.3283 2.21369C73.0497 2.30488 73.6707 2.44167 74.1912 2.62405C74.7117 2.80643 75.1409 3.04352 75.4787 3.31709C75.8166 3.59978 76.0905 3.92807 76.2914 4.30195C76.4923 4.68495 76.6384 5.11354 76.7206 5.59685C76.8028 6.08016 76.8393 6.60906 76.8393 7.19268H74.9126L74.9034 7.21091Z" fill="#7C282C"/>
+      <path class="logo-text" d="M103.23 14.2509H91.1941L89.1851 17.7708H86.957L95.7325 2.40527H98.4903L107.238 17.7708H105.22L103.22 14.2509H103.23ZM102.316 12.6551L97.221 3.68193L92.1073 12.6551H102.326H102.316Z" fill="#7C282C"/>
+      <path class="logo-text" d="M129.984 2.40527V4.01022H122.295V17.7708H120.369V4.01022H112.68V2.40527H129.984Z" fill="#7C282C"/>
+      <path class="logo-text" d="M132.054 2.40552V2.5879H131.525V3.98311H131.315V2.5879H130.785V2.40552H132.064H132.054ZM133.762 3.98311L133.689 2.91618C133.689 2.82499 133.68 2.70644 133.671 2.57878H133.662C133.625 2.66997 133.57 2.83411 133.534 2.95266L133.169 3.95575H132.931L132.566 2.91618C132.538 2.81587 132.484 2.66997 132.447 2.56966H132.438C133.438 2.66997 132.438 2.78852 132.429 2.90706L132.356 3.97399H132.146L132.274 2.40552H132.584L132.958 3.40861C133.004 3.52716 133.032 3.63658 133.068 3.73689H133.077C133.114 3.62747 133.15 3.4998 133.178 3.41773L133.552 2.40552H133.863L133.999 3.97399H133.78L133.762 3.98311Z" fill="#7C282C"/>
+      <path class="logo-icon" d="M14.9834 12.6017C12.3201 7.63258 9.89316 7.57978 7.46829 7.52703C6.36355 7.503 5.25924 7.47897 4.13321 6.99005L0 0H1.77913C3.72902 2.32775 5.60072 2.50883 7.47286 2.68996C9.91908 2.92663 12.3661 3.16337 14.9893 8.18915C17.6167 3.13904 20.0567 2.91743 22.4973 2.69577C24.3637 2.52625 26.2305 2.35671 28.1815 0.0275446H30L25.8799 6.99202C24.7351 7.50211 23.6138 7.52368 22.4921 7.54525C20.0703 7.59183 17.647 7.63834 14.9834 12.6017Z" fill="#B97727"/>
+      <path class="logo-icon" d="M14.9834 19.9982L14.9833 19.998L14.9822 20L14.9822 19.996C12.8327 15.9785 10.8242 15.1602 8.86004 14.9739L5.83551 9.85835C6.38221 9.96155 6.92664 10.0113 7.47093 10.061C9.91369 10.2843 12.3538 10.5073 14.9834 15.5602C17.6041 10.5196 20.0377 10.3049 22.4718 10.0901C23.0364 10.0402 23.6011 9.9904 24.1681 9.88032L21.138 14.9959C19.1607 15.1785 17.1516 15.9548 14.9834 19.9978V19.9982Z" fill="#B97727"/>
+    </svg>
+  </div>
+  <div style="font-family:var(--sc-font-mono);font-size:var(--sc-text-sm);color:var(--sc-text-tertiary);">eCat Data Model Guide</div>
+  <div style="font-family:var(--sc-font-mono);font-size:var(--sc-text-sm);color:var(--sc-text-muted);letter-spacing:0.04em;">v2.3 &mdash; Apr 2026</div>
+</footer>
+
+<script>
+/* ── THEME SWITCH ── */
+document.querySelectorAll('.sc-theme-switch').forEach(function(sw){
+  sw.addEventListener('click',function(){
+    var c=document.documentElement.getAttribute('data-theme');
+    document.documentElement.setAttribute('data-theme',c==='dark'?'light':'dark');
+  });
+});
+
+/* ── MOBILE MENU ── */
+var dmMenuBtn=document.getElementById('dmMenuToggle');
+var dmMenu=document.getElementById('dmMenu');
+if(dmMenuBtn&&dmMenu){
+  var o=dmMenuBtn.querySelector('.menu-icon-open');
+  var x=dmMenuBtn.querySelector('.menu-icon-close');
+  function toggle(){var isOpen=dmMenu.classList.toggle('open');if(o)o.style.display=isOpen?'none':'block';if(x)x.style.display=isOpen?'block':'none';}
+  function closeMobileMenu(){dmMenu.classList.remove('open');if(o)o.style.display='block';if(x)x.style.display='none';}
+  dmMenuBtn.addEventListener('click',function(e){e.stopPropagation();toggle();});
+  document.addEventListener('click',function(e){if(!dmMenu.contains(e.target)&&!dmMenuBtn.contains(e.target))closeMobileMenu();});
+  dmMenu.querySelectorAll('a').forEach(function(l){l.addEventListener('click',closeMobileMenu);});
+}
+
+/* ── SCROLL PROGRESS BAR ── */
+var progressFill=document.getElementById('sc-progress-fill');
+function updateProgress(){
+  var scrollTop=window.scrollY||document.documentElement.scrollTop;
+  var docH=document.documentElement.scrollHeight-window.innerHeight;
+  var pct=docH>0?Math.min(100,(scrollTop/docH)*100):0;
+  if(progressFill)progressFill.style.width=pct+'%';
+}
+window.addEventListener('scroll',updateProgress,{passive:true});
+updateProgress();
+
+/* ── HEADER HIDE/SHOW + ACTIVE NAV ── */
+(function(){
+  var lastY=0,h=document.getElementById('dmHeader');
+  if(!h)return;
+  var navLinks=h.querySelectorAll('.sc-header-nav a[data-section]');
+  var sections=[];
+  navLinks.forEach(function(a){
+    var id=a.getAttribute('data-section');
+    var el=document.getElementById(id);
+    if(el)sections.push({el:el,a:a});
+  });
+  window.addEventListener('scroll',function(){
+    var y=window.scrollY;
+    if(y>60)h.style.backdropFilter='blur(12px)';else h.style.backdropFilter='';
+    if(y>lastY&&y>100)h.classList.add('hidden');else h.classList.remove('hidden');
+    lastY=y;
+    // active nav
+    var current=null;
+    sections.forEach(function(s){
+      if(s.el.getBoundingClientRect().top<=100)current=s;
+    });
+    navLinks.forEach(function(a){a.classList.remove('active');});
+    if(current)current.a.classList.add('active');
+  },{passive:true});
+})();
+
+/* ── ANIMATED HUB SPOKES (requestAnimationFrame) ── */
+(function(){
+  var spokes=[
+    {pulse:document.getElementById('pulse-top'),    x1:220,y1:220,x2:220,y2:80,  delay:0,    dur:1800},
+    {pulse:document.getElementById('pulse-right'),  x1:220,y1:220,x2:375,y2:220, delay:450,  dur:1800},
+    {pulse:document.getElementById('pulse-bottom'), x1:220,y1:220,x2:220,y2:360, delay:900,  dur:1800},
+    {pulse:document.getElementById('pulse-left'),   x1:220,y1:220,x2:65, y2:220, delay:1350, dur:1800}
+  ];
+  var start=null;
+  function animate(ts){
+    if(!start)start=ts;
+    spokes.forEach(function(s){
+      if(!s.pulse)return;
+      var elapsed=(ts-start+s.delay)%s.dur;
+      var t=elapsed/s.dur;
+      var cx=s.x1+(s.x2-s.x1)*t;
+      var cy=s.y1+(s.y2-s.y1)*t;
+      s.pulse.setAttribute('cx',cx);
+      s.pulse.setAttribute('cy',cy);
+      // fade out near end
+      var alpha=t<0.8?0.85:0.85*(1-(t-0.8)/0.2);
+      s.pulse.setAttribute('opacity',alpha);
+    });
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+})();
+
+/* ── HUB SPOKE NODE TOOLTIPS ── */
+(function(){
+  var tt=document.getElementById('spokeTooltip');
+  var ttTitle=document.getElementById('spokeTooltipTitle');
+  var ttLink=document.getElementById('spokeTooltipLink');
+  var ttDesc=document.getElementById('spokeTooltipDesc');
+  var nodes=document.querySelectorAll('.spoke-node');
+  var activeNode=null;
+  function showTooltip(node,e){
+    ttTitle.textContent=node.dataset.title||'';
+    ttLink.textContent=node.dataset.link||'';
+    ttDesc.textContent=node.dataset.desc||'';
+    positionTooltip(e);
+    tt.classList.add('visible');
+    if(activeNode)activeNode.classList.remove('active');
+    activeNode=node;
+    node.classList.add('active');
+  }
+  function hideTooltip(){
+    tt.classList.remove('visible');
+    if(activeNode){activeNode.classList.remove('active');activeNode=null;}
+  }
+  function positionTooltip(e){
+    var margin=12;
+    var tw=tt.offsetWidth||240;
+    var th=tt.offsetHeight||100;
+    var x=e.clientX+margin;
+    var y=e.clientY+margin;
+    if(x+tw>window.innerWidth-margin)x=e.clientX-tw-margin;
+    if(y+th>window.innerHeight-margin)y=e.clientY-th-margin;
+    tt.style.left=x+'px';
+    tt.style.top=y+'px';
+  }
+  nodes.forEach(function(node){
+    node.addEventListener('mouseenter',function(e){showTooltip(node,e);});
+    node.addEventListener('mousemove',positionTooltip);
+    node.addEventListener('mouseleave',hideTooltip);
+  });
+})();
+
+/* ── KEY BADGE POPOVER (BaseItemCode) ── */
+(function(){
+  var pop=document.getElementById('keyBadgePopover');
+  var badges=document.querySelectorAll('[data-key]');
+  var margin=10;
+  function positionPop(e){
+    var pw=pop.offsetWidth||280;
+    var ph=pop.offsetHeight||120;
+    var x=e.clientX+margin;
+    var y=e.clientY+margin;
+    if(x+pw>window.innerWidth-margin)x=e.clientX-pw-margin;
+    if(y+ph>window.innerHeight-margin)y=e.clientY-ph-margin;
+    pop.style.left=x+'px';
+    pop.style.top=y+'px';
+  }
+  badges.forEach(function(badge){
+    badge.addEventListener('mouseenter',function(e){
+      positionPop(e);
+      pop.classList.add('visible');
+    });
+    badge.addEventListener('mousemove',positionPop);
+    badge.addEventListener('mouseleave',function(){pop.classList.remove('visible');});
+  });
+})();
+
+/* ── COMPLETION STATE (IntersectionObserver) ── */
+(function(){
+  var block=document.getElementById('completionBlock');
+  var check=document.getElementById('completionCheck');
+  var text=document.getElementById('completionText');
+  if(!block||!check||!text)return;
+  var triggered=false;
+  var obs=new IntersectionObserver(function(entries){
+    if(entries[0].isIntersecting&&!triggered){
+      triggered=true;
+      setTimeout(function(){
+        check.classList.add('done');
+        text.classList.add('done');
+      },300);
+    }
+  },{threshold:0.5});
+  obs.observe(block);
+})();
+</script>
+</body>
+</html>
